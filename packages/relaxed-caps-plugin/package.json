@@ -32,8 +32,10 @@
     "build"
   ],
   "dependencies": {
-    "@appium/base-plugin": "file:../base-plugin",
     "lodash": "4.17.21"
+  },
+  "peerDependencies": {
+    "appium": "file:../appium"
   },
   "scripts": {
     "build": "babel lib --root-mode=upward --out-dir=build/lib",
