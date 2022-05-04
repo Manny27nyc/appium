@@ -33,10 +33,7 @@ export interface Plugin {
   /**
    * Listener for unexpected server shutdown, which allows a plugin to do cleanup or take custom actions.
    */
-  onUnexpectedShutdown?: (
-    driver: Driver,
-    cause: Error | string
-  ) => Promise<void>;
+  onUnexpectedShutdown?: (driver: Driver, cause: Error | string) => Promise<void>;
   /**
    * Handle an Appium command, optionally running and using or throwing away the value of the
    * original Appium behavior (or the behavior of the next plugin in a plugin chain).
@@ -81,8 +78,4 @@ export type PluginCommand<TArgs = any> = (
   ...args: TArgs[]
 ) => Promise<void>;
 
-export type PluginClass = Class<
-  Plugin,
-  PluginStatic & {pluginName: string},
-  [string]
->;
+export type PluginClass = Class<Plugin, PluginStatic & {pluginName: string}, [string]>;
