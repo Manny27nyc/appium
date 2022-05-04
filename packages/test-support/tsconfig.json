@@ -1,0 +1,19 @@
+{
+  "extends": "../../config/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "build",
+    "checkJs": true,
+    "paths": {
+      "appium/driver": ["../appium/driver"],
+      "appium/plugin": ["../appium/plugin"],
+      "@appium/types": ["../types"]
+    }
+  },
+  "include": ["./lib"],
+  "references": [
+    {"path": "../base-driver"},
+    {"path": "../base-plugin"},
+    {"path": "../types"}
+  ]
+}

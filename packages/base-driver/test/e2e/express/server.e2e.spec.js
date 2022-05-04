@@ -5,7 +5,7 @@ import axios from 'axios';
 import {createSandbox} from 'sinon';
 import B from 'bluebird';
 import _ from 'lodash';
-import {TEST_HOST, getTestPort} from '../../helpers';
+import {TEST_HOST, getTestPort} from '@appium/test-support';
 
 describe('server', function () {
   let hwServer;
@@ -115,6 +115,7 @@ describe('server plugins', function () {
   function updaterWithGetRoute(route, reply) {
     // eslint-disable-next-line require-await
     return async (app, httpServer) => {
+      // eslint-disable-line require-await
       app.get(`/${route}`, (req, res) => {
         res.header['content-type'] = 'text/html';
         res.status(200).send(reply);
