@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import LRU from 'lru-cache';
-import {imageUtil, util} from '@appium/support';
-import {errors} from '@appium/base-driver';
+import {errors} from 'appium/driver';
+import {util, imageUtil} from 'appium/support';
 import {
   ImageElement,
   DEFAULT_TEMPLATE_IMAGE_SCALE,
@@ -73,6 +73,11 @@ const DEFAULT_SETTINGS = {
 };
 
 export default class ImageElementFinder {
+  /**
+   *
+   * @param {import('@appium/types').Driver} driver
+   * @param {number} max
+   */
   constructor(driver, maxSize = MAX_CACHE_SIZE_BYTES) {
     this.driver = driver;
     this.imgElCache = new LRU({
@@ -111,7 +116,7 @@ export default class ImageElementFinder {
    * matched in the screenshot
    * @param {FindByImageOptions} - additional options
    *
-   * @returns {WebElement} - WebDriver element with a special id prefix
+   * @returns {Promise<import('@appium/types').Element>} - WebDriver element with a special id prefix
    */
   async findByImage(
     b64Template,
