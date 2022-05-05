@@ -1,11 +1,5 @@
 import _ from 'lodash';
-import {
-  BaseDriver,
-  server,
-  routeConfiguringFunction,
-  DeviceSettings,
-  PREFIXED_APPIUM_OPTS_CAP,
-} from 'appium/driver';
+import {server, routeConfiguringFunction, DeviceSettings} from 'appium/driver';
 import axios from 'axios';
 import B from 'bluebird';
 import {TEST_HOST, getTestPort, createAppiumURL} from './helpers';
@@ -13,7 +7,6 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 const should = chai.should();
-const {expect} = chai;
 
 /**
  * Creates some helper functions for E2E tests to manage sessions.
@@ -413,26 +406,6 @@ export function baseDriverE2ETests(DriverClass, defaultCaps = {}) {
         await endSession(session.sessionId);
       });
     });
-
-    if (DriverClass === BaseDriver) {
-      // only run this test on basedriver, not other drivers which also use these tests, since we
-      // don't want them to try and start sessions with these random capabilities that are
-      // necessary to test the appium options logic
-      describe('special appium:options capability', function () {
-        it('should be able to start a session with caps held in appium:options', async function () {
-          const ret = await startSession({
-            platformName: 'iOS',
-            [PREFIXED_APPIUM_OPTS_CAP]: {
-              platformVersion: '11.4',
-              'appium:deviceName': 'iPhone 11',
-            },
-          });
-          expect(d.opts.platformVersion).to.equal('11.4');
-          expect(d.opts.deviceName).to.equal('iPhone 11');
-          await endSession(ret.sessionId);
-        });
-      });
-    }
   });
 }
 

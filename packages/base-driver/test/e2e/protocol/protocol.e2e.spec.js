@@ -915,7 +915,6 @@ describe('Protocol', function () {
     it('should pass on any errors in proxying', async function () {
       // eslint-disable-next-line require-await
       driver.proxyReqRes = async function () {
-        // eslint-disable-line require-await
         throw new Error('foo');
       };
       const {status, data} = await axios({
@@ -937,7 +936,6 @@ describe('Protocol', function () {
     it('should able to throw ProxyRequestError in proxying', async function () {
       // eslint-disable-next-line require-await
       driver.proxyReqRes = async function () {
-        // eslint-disable-line require-await
         let jsonwp = {
           status: 35,
           value: 'No such context found.',
@@ -961,7 +959,6 @@ describe('Protocol', function () {
     it('should let the proxy handle req/res', async function () {
       // eslint-disable-next-line require-await
       driver.proxyReqRes = async function (req, res) {
-        // eslint-disable-line require-await
         res.status(200).json({custom: 'data'});
       };
       const {status, data} = await axios({
