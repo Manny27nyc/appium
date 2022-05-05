@@ -16,6 +16,71 @@ const should = chai.should();
 const {expect} = chai;
 
 /**
+ * Creates some helper functions for E2E tests to manage sessions.
+ * @param {number} port - Port on which the server is running. Typically this will be retrieved via `get-port` beforehand
+ * @param {string} [address] - Address/host on which the server is running. Defaults to {@linkcode TEST_HOST}
+ * @returns {SessionHelpers}
+ */
+export function createSessionHelpers(port, address = TEST_HOST) {
+  const createAppiumTestURL =
+    /** @type {import('lodash').CurriedFunction2<string,string,string>} */ (
+      createAppiumURL(address, port)
+    );
+
+  const createSessionURL = createAppiumTestURL(_, '');
+  const newSessionURL = createAppiumTestURL('', 'session');
+
+  return {
+    newSessionURL,
+    /**
+     *
+     * @param {Capabilities} caps
+     * @returns {Promise<any>}
+     */
+    startSession: async (caps) =>
+      (
+        await axios.post(newSessionURL, {
+          capabilities: {
+            alwaysMatch: caps,
+            firstMatch: [{}],
+          },
+        })
+      ).data.value,
+    /**
+     *
+     * @param {string} sessionId
+     * @returns {Promise<any>}
+     */
+    endSession: async (sessionId) =>
+      (
+        await axios.delete(createSessionURL(sessionId), {
+          validateStatus: null,
+        })
+      ).data.value,
+    /**
+     *
+     * @param {string} sessionId
+     * @returns {Promise<any>}
+     */
+    getSession: async (sessionId) =>
+      (
+        await axios({
+          url: createSessionURL(sessionId),
+        })
+      ).data.value,
+  };
+}
+
+/**
+ * Object returned by {@linkcode createSessionHelpers}
+ * @typedef SessionHelpers
+ * @property {string} newSessionURL - URL to create a new session
+ * @property {(caps: Capabilities) => Promise<any>} startSession - Begin a session
+ * @property {(sessionId: string) => Promise<any>} endSession - End a session
+ * @property {(sessionId: string) => Promise<any>} getSession - Get info about a session
+ */
+
+/**
  * Creates E2E test suites for a driver.
  * @template {import('@appium/types').Driver} P
  * @template {import('@appium/types').DriverStatic} S
@@ -36,6 +101,10 @@ export function baseDriverE2ETests(DriverClass, defaultCaps = {}) {
      * @type {string}
      **/
     let newSessionURL;
+
+    let startSession;
+    let getSession;
+    let endSession;
 
     /**
      * Creates a URL with base host/port. Supply `session` and `pathname`
@@ -59,45 +128,12 @@ export function baseDriverE2ETests(DriverClass, defaultCaps = {}) {
         port,
         hostname: TEST_HOST,
       });
-      createAppiumTestURL = /** @type {import('lodash').CurriedFunction2<string,string,string>} */ (
-        createAppiumURL(address, port)
-      );
-      newSessionURL = createAppiumTestURL('', 'session');
-      createSessionURL = createAppiumTestURL(_, '');
+      ({startSession, getSession, endSession} = createSessionHelpers(address, port));
     });
 
     after(async function () {
       await baseServer.close();
     });
-
-    async function startSession(caps) {
-      return (
-        await axios.post(newSessionURL, {
-          data: {
-            capabilities: {
-              alwaysMatch: caps,
-              firstMatch: [{}],
-            },
-          },
-        })
-      ).data.value;
-    }
-
-    async function endSession(id) {
-      return (
-        await axios.delete(createSessionURL(id), {
-          validateStatus: null,
-        })
-      ).data.value;
-    }
-
-    async function getSession(id) {
-      return (
-        await axios({
-          url: createSessionURL(id),
-        })
-      ).data.value;
-    }
 
     describe('session handling', function () {
       it('should handle idempotency while creating sessions', async function () {
@@ -404,4 +440,8 @@ export function baseDriverE2ETests(DriverClass, defaultCaps = {}) {
  * @template {import('@appium/types').Driver} P
  * @template {import('@appium/types').DriverStatic} S
  * @typedef {import('@appium/types').DriverClass<P,S>} DriverClass
+ */
+
+/**
+ * @typedef {import('@appium/types').Capabilities} Capabilities
  */
