@@ -14,10 +14,11 @@ import {PluginConfig} from './plugin-config';
  *
  * If `appiumHome` is needed, use `resolveAppiumHome` from the `env` module in `@appium/support`.
  * @param {string} appiumHome
+ * @param {boolean} [hasAppiumDependency]
  * @returns {Promise<ExtensionConfigs>}
  */
-export async function loadExtensions(appiumHome) {
-  const manifest = Manifest.getInstance(appiumHome);
+export async function loadExtensions(appiumHome, hasAppiumDependency) {
+  const manifest = Manifest.getInstance(appiumHome, hasAppiumDependency);
   const {drivers, plugins} = await manifest.read();
   const driverConfig =
     DriverConfig.getInstance(manifest) ?? DriverConfig.create(manifest, {extData: drivers});

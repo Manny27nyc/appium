@@ -151,15 +151,25 @@ export class Manifest {
   _reading;
 
   /**
+   * If this is `true`, then `<APPIUM_HOME>/package.json` is _not_ managed by Appium.
+   *
+   * This is set upon read and is cached to avoid extra overhead.
+   * @type {boolean|undefined}
+   */
+  hasAppiumDependency;
+
+  /**
    * Sets internal data to a fresh clone of {@link INITIAL_MANIFEST_DATA}
    *
    * Use {@link Manifest.getInstance} instead.
    * @param {string} appiumHome
+   * @param {boolean} [hasAppiumDependency]
    * @private
    */
-  constructor(appiumHome) {
+  constructor(appiumHome, hasAppiumDependency) {
     this._appiumHome = appiumHome;
     this._data = _.cloneDeep(INITIAL_MANIFEST_DATA);
+    this.hasAppiumDependency = hasAppiumDependency;
   }
 
   /**
@@ -167,10 +177,11 @@ export class Manifest {
    *
    * Maintains one instance per value of `appiumHome`.
    * @param {string} appiumHome - Path to `APPIUM_HOME`
+   * @param {boolean} [hasAppiumDependency]
    * @returns {Manifest}
    */
-  static getInstance = _.memoize(function _getInstance(appiumHome) {
-    return new Manifest(appiumHome);
+  static getInstance = _.memoize(function _getInstance(appiumHome, hasAppiumDependency) {
+    return new Manifest(appiumHome, hasAppiumDependency);
   });
 
   /**
@@ -346,10 +357,7 @@ export class Manifest {
 
       this._data = data;
       let installedExtensionsChanged = false;
-      if (
-        (await env.hasAppiumDependency(this.appiumHome)) &&
-        (await packageDidChange(this.appiumHome))
-      ) {
+      if (this.hasAppiumDependency && (await packageDidChange(this.appiumHome))) {
         installedExtensionsChanged = await this.syncWithInstalledExtensions();
       }
 
